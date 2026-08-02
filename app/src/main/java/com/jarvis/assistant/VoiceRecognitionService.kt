@@ -12,20 +12,6 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import androidx.core.app.NotificationCompat
 
-/**
- * Держит микрофон "постоянно включённым": слушает, распознаёт фразу,
- * передаёт её в CommandProcessor, озвучивает ответ через TtsHelper и
- * сразу перезапускает прослушивание. Работает как foreground-сервис,
- * чтобы Android не убивал процесс.
- *
- * ВАЖНО про точность распознавания:
- * Стандартный SpeechRecognizer Android иногда "мажет" на шумном фоне
- * или при плохом интернете (он использует облачный движок Google).
- * Если точность всё ещё не устраивает — замените SpeechRecognizer на
- * офлайн-движок Vosk (см. README, раздел "Улучшение точности микрофона").
- * Vosk работает локально, не зависит от сети и заметно стабильнее
- * ловит команды на русском при коротких фразах.
- */
 class VoiceRecognitionService : Service(), RecognitionListener {
 
     private var speechRecognizer: SpeechRecognizer? = null
@@ -34,7 +20,6 @@ class VoiceRecognitionService : Service(), RecognitionListener {
     private val handler = Handler(Looper.getMainLooper())
     private var listening = false
 
-    // Состояние "спит / бодрствует". Пока спит — реагирует только на "джарвис".
     private var awake = false
     private val wakeWord = "джарвис"
     private val sleepWord = "спи"
@@ -51,29 +36,27 @@ class VoiceRecognitionService : Service(), RecognitionListener {
         acquireWakeLock()
     }
 
-    // Без этого при выключенном экране Android может усыпить CPU и
-    // распознавание речи остановится. Держим частичную блокировку —
-    // экран при этом не включается, батарея расходуется чуть быстрее.
     private fun acquireWakeLock() {
         val pm = getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
         wakeLock = pm.newWakeLock(
             android.os.PowerManager.PARTIAL_WAKE_LOCK, "Jarvis::ListeningWakeLock"
-        ).apply { acquire(12 * 60 * 60 * 1000L /* максимум 12 часов подряд */) }
+        ).apply { acquire(12 * 60 * 60 * 1000L) }
     }
 
     private fun scheduleWellbeingReminders() {
         val request = androidx.work.PeriodicWorkRequestBuilder<WellbeingReminderWorker>(
             90, java.util.concurrent.TimeUnit.MINUTES
-        ).build()
+        ).setInitialDelay(90, java.util.concurrent.TimeUnit.MINUTES).build()
         androidx.work.WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "jarvis_wellbeing_reminder",
-            androidx.work.ExistingPeriodicWorkPolicy.KEEP,
+            androidx.work.ExistingPeriodicWorkPolicy.REPLACE,
             request
         )
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startListening()
+        tts.speak("Слушаю. Скажите Джарвис")
         return START_STICKY
     }
 
@@ -88,7 +71,6 @@ class VoiceRecognitionService : Service(), RecognitionListener {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ru-RU")
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
-            // Просим систему не резать фразу слишком быстро на паузах
             putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1200)
             putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1200)
             putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 15000)
@@ -107,8 +89,6 @@ class VoiceRecognitionService : Service(), RecognitionListener {
         handler.postDelayed({ startListening() }, 400)
     }
 
-    // ---- RecognitionListener ----
-
     override fun onResults(results: Bundle) {
         val matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
         val heard = matches?.firstOrNull()?.trim().orEmpty().lowercase()
@@ -117,8 +97,6 @@ class VoiceRecognitionService : Service(), RecognitionListener {
             when {
                 !awake && heard.contains(wakeWord) -> {
                     awake = true
-                    // Всё, что сказано в одной фразе после слова "джарвис" —
-                    // сразу считаем командой (типично для "Джарвис, включи..." одним махом)
                     val rest = heard.substringAfter(wakeWord).trim()
                     if (rest.isNotEmpty()) {
                         commandProcessor.process(rest)
@@ -133,14 +111,12 @@ class VoiceRecognitionService : Service(), RecognitionListener {
                 awake -> {
                     commandProcessor.process(heard)
                 }
-                // спит и не услышал wake word — просто игнорируем
             }
         }
         restartListeningSoon()
     }
 
     override fun onError(error: Int) {
-        // Частая ошибка ERROR_NO_MATCH / ERROR_SPEECH_TIMEOUT — просто слушаем снова
         restartListeningSoon()
     }
 
@@ -151,8 +127,6 @@ class VoiceRecognitionService : Service(), RecognitionListener {
     override fun onEndOfSpeech() {}
     override fun onPartialResults(partialResults: Bundle?) {}
     override fun onEvent(eventType: Int, params: Bundle?) {}
-
-    // ---- Foreground notification ----
 
     private fun buildNotification(text: String): Notification {
         val channelId = "jarvis_channel"
