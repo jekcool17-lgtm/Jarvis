@@ -1,58 +1,124 @@
+
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center_horizontal">
+    android:background="#080D18"
+    android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/statusText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Jarvis готов к настройке"
-        android:textSize="18sp"
-        android:layout_marginBottom="24dp" />
-
-    <Button
-        android:id="@+id/btnGrantMic"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="1. Разрешить микрофон" />
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp">
 
-    <Button
-        android:id="@+id/btnGrantWriteSettings"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="2. Разрешить менять яркость" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="J.A.R.V.I.S."
+            android:textColor="#45D9FF"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.15"
+            android:layout_marginTop="30dp"/>
 
-    <Button
-        android:id="@+id/btnAccessibility"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="3. Включить Accessibility Service" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PERSONAL AI ASSISTANT"
+            android:textColor="#718BAA"
+            android:textSize="11sp"
+            android:letterSpacing="0.2"
+            android:layout_marginTop="8dp"/>
 
-    <Button
-        android:id="@+id/btnNotificationAccess"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="4. Разрешить доступ к медиасессиям" />
+        <TextView
+            android:layout_width="170dp"
+            android:layout_height="170dp"
+            android:layout_marginTop="35dp"
+            android:gravity="center"
+            android:text="◉"
+            android:textColor="#45D9FF"
+            android:textSize="100sp"
+            android:background="#10243A"/>
 
-    <Button
-        android:id="@+id/btnStart"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Запустить Джарвиса" />
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Джарвис остановлен"
+            android:textColor="#45D9FF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="28dp"
+            android:layout_marginBottom="25dp"/>
 
-    <Button
-        android:id="@+id/btnStop"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Остановить" />
+        <Button
+            android:id="@+id/btnGrantMic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="54dp"
+            android:text="🎙  Разрешить микрофон"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#164C70"/>
 
-</LinearLayout>
+        <Button
+            android:id="@+id/btnGrantWriteSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="54dp"
+            android:layout_marginTop="10dp"
+            android:text="☼  Управление яркостью"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#164C70"/>
+
+        <Button
+            android:id="@+id/btnAccessibility"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="54dp"
+            android:layout_marginTop="10dp"
+            android:text="⚙  Accessibility Service"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#164C70"/>
+
+        <Button
+            android:id="@+id/btnNotificationAccess"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="54dp"
+            android:layout_marginTop="10dp"
+            android:text="♫  Доступ к медиасессиям"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#164C70"/>
+
+        <Button
+            android:id="@+id/btnStart"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="28dp"
+            android:text="▶  ЗАПУСТИТЬ JARVIS"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:backgroundTint="#087EAA"/>
+
+        <Button
+            android:id="@+id/btnStop"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="10dp"
+            android:text="■  ОСТАНОВИТЬ"
+            android:textColor="#FF8790"
+            android:backgroundTint="#39202A"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="JARVIS SYSTEM • ONLINE READY"
+            android:textColor="#526A83"
+            android:textSize="10sp"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="20dp"/>
+
+    </LinearLayout>
+</ScrollView>
